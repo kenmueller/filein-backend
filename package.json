@@ -1,0 +1,8 @@
+{
+	"name": "filein",
+	"version": "1.0.0",
+	"scripts": {
+		"set-firebase-storage-cors": "gsutil cors set firebase-storage-cors.json gs://u.filein.io"
+	},
+	"private": true
+}
