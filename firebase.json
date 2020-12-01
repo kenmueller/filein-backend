@@ -8,5 +8,22 @@
 	},
 	"functions": {
 		"predeploy": ["npm run build -C \"$RESOURCE_DIR\""]
+	},
+	"hosting": {
+		"public": "public",
+		"cleanUrls": true,
+		"trailingSlash": false,
+		"ignore": [
+			"firebase.json",
+			"**/.*",
+			"**/node_modules/**"
+		],
+		"redirects": [
+			{
+				"source": "**",
+				"destination": "https://filein.io",
+				"type": 301
+			}
+		]
 	}
 }
