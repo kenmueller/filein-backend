@@ -2,7 +2,7 @@ import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 
 admin.initializeApp({
-	storageBucket: 'file-in.appspot.com'
+	storageBucket: 'u.filein.io'
 })
 
 const { FieldValue } = admin.firestore
