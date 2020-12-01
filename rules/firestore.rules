@@ -9,7 +9,7 @@ service cloud.firestore {
 		
 		match /files/{fileId} {
 			allow read
-			allow create: if isOptionallySignedInWith(getNewData().owner)
+			allow create: if isOptionallySignedInWith(getNewData().owner) && isZero(getNewData().comments)
 			allow update: if isSignedInWith(getOldData().owner) && isOnlyUpdatedFields(['name'])
 			allow delete: if isSignedInWith(getOldData().owner)
 			
@@ -41,6 +41,10 @@ service cloud.firestore {
 		
 		function isOnlyUpdatedFields(fields) {
 			return getNewData().diff(getOldData()).affectedKeys().hasOnly(fields)
+		}
+		
+		function isZero(num) {
+			return num == 0
 		}
 		
 		function isNotEmpty(str) {
