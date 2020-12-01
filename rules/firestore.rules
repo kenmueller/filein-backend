@@ -2,8 +2,49 @@ rules_version = '2'
 
 service cloud.firestore {
 	match /databases/{database}/documents {
-		match /{document=**} {
-			allow read, write: if false
+		match /users/{uid} {
+			allow read
+			allow create: if isSignedInWith(uid)
+		}
+		
+		match /files/{fileId} {
+			allow read
+			allow create: if isOptionallySignedInWith(getNewData().owner)
+			allow update: if isSignedInWith(getOldData().owner) && isOnlyUpdatedFields(['name'])
+			allow delete: if isSignedInWith(getOldData().owner)
+			
+			match /comments/{commentId} {
+				allow read
+				allow create: if isSignedInWith(getNewData().from) && isNotEmpty(getNewData().body)
+			}
+		}
+		
+		function isSignedIn() {
+			return request.auth != null
+		}
+		
+		function isSignedInWith(uid) {
+			return isSignedIn() && request.auth.uid == uid
+		}
+		
+		function isOptionallySignedInWith(uid) {
+			return uid == null || isSignedInWith(uid)
+		}
+		
+		function getNewData() {
+			return request.resource.data
+		}
+		
+		function getOldData() {
+			return resource.data
+		}
+		
+		function isOnlyUpdatedFields(fields) {
+			return getNewData().diff(getOldData()).affectedKeys().hasOnly(fields)
+		}
+		
+		function isNotEmpty(str) {
+			return str.size() > 0
 		}
 	}
 }
