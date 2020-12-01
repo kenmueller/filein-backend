@@ -3,9 +3,12 @@
 		"rules": "rules/firestore.rules",
 		"indexes": "firestore.indexes.json"
 	},
-	"storage": {
-		"rules": "rules/storage.rules"
-	},
+	"storage": [
+		{
+			"bucket": "u.filein.io",
+			"rules": "rules/storage.rules"
+		}
+	],
 	"functions": {
 		"predeploy": ["npm run build -C \"$RESOURCE_DIR\""]
 	},
