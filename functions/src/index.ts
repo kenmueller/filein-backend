@@ -35,13 +35,13 @@ export const fileCreated = functions.firestore
 
 export const fileDeleted = functions.firestore
 	.document('files/{fileId}')
-	.onDelete(async snapshot => {
+	.onDelete(snapshot => {
 		const uid = snapshot.get('owner')
 		const promises: Promise<any>[] = [
 			storage.file(snapshot.id).delete(),
-			...(await snapshot.ref.collection('comments').get())
-				.docs
-				.map(({ ref }) => ref.delete())
+			snapshot.ref.collection('comments').get().then(({ docs }) =>
+				Promise.all(docs.map(({ ref }) => ref.delete()))
+			)
 		]
 		
 		if (uid)
