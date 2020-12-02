@@ -10,18 +10,29 @@ service cloud.firestore {
 				isNotEmpty(getNewData().email) &&
 				isZero(getNewData().files) &&
 				isZero(getNewData().comments)
-			allow update: if isSignedInWith(uid) && onlyUpdatedFields(['name']) && isNotEmpty(getNewData().name)
+			allow update: if
+				isSignedInWith(uid) &&
+				onlyUpdatedFields(['name']) &&
+				isNotEmpty(getNewData().name)
 		}
 		
 		match /files/{fileId} {
 			allow read
-			allow create: if isOptionallySignedInWith(getNewData().owner) && isZero(getNewData().comments)
-			allow update: if isSignedInWith(getOldData().owner) && onlyUpdatedFields(['name']) && isNotEmpty(getNewData().name)
-			allow delete: if isSignedInWith(getOldData().owner)
+			allow create: if
+				isOptionallySignedInWith(getNewData().owner) &&
+				isZero(getNewData().comments)
+			allow update: if
+				isSignedInWith(getOldData().owner) &&
+				onlyUpdatedFields(['name']) &&
+				isNotEmpty(getNewData().name)
+			allow delete: if
+				isSignedInWith(getOldData().owner)
 			
 			match /comments/{commentId} {
 				allow read
-				allow create: if isSignedInWith(getNewData().from) && isNotEmpty(getNewData().body)
+				allow create: if
+					isSignedInWith(getNewData().from) &&
+					isNotEmpty(getNewData().body)
 			}
 		}
 		
