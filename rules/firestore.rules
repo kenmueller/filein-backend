@@ -4,7 +4,12 @@ service cloud.firestore {
 	match /databases/{database}/documents {
 		match /users/{uid} {
 			allow read
-			allow create: if isSignedInWith(uid)
+			allow create: if
+				isSignedInWith(uid) &&
+				isNotEmpty(getNewData().name) &&
+				isNotEmpty(getNewData().email) &&
+				isZero(getNewData().files) &&
+				isZero(getNewData().comments)
 			allow update: if isSignedInWith(uid) && onlyUpdatedFields(['name']) && isNotEmpty(getNewData().name)
 		}
 		
@@ -49,7 +54,7 @@ service cloud.firestore {
 		}
 		
 		function isNotEmpty(str) {
-			return str.size() > 0
+			return str != null && str.size() > 0
 		}
 	}
 }
