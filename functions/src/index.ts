@@ -38,19 +38,16 @@ export const fileDeleted = functions.firestore
 	.onDelete(async snapshot => {
 		const uid = snapshot.get('owner')
 		const promises: Promise<any>[] = [
-			storage.file(snapshot.id).delete()
+			storage.file(snapshot.id).delete(),
+			...(await snapshot.ref.collection('comments').get())
+				.docs
+				.map(({ ref }) => ref.delete())
 		]
 		
 		if (uid)
 			promises.push(firestore.doc(`users/${uid}`).update({
 				files: FieldValue.increment(-1)
 			}))
-		
-		promises.push(
-			...(await snapshot.ref.collection('comments').get())
-				.docs
-				.map(({ ref }) => ref.delete())
-		)
 		
 		return Promise.all(promises)
 	})
