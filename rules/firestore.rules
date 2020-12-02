@@ -5,12 +5,13 @@ service cloud.firestore {
 		match /users/{uid} {
 			allow read
 			allow create: if isSignedInWith(uid)
+			allow update: if isSignedInWith(uid) && onlyUpdatedFields(['name']) && isNotEmpty(getNewData().name)
 		}
 		
 		match /files/{fileId} {
 			allow read
 			allow create: if isOptionallySignedInWith(getNewData().owner) && isZero(getNewData().comments)
-			allow update: if isSignedInWith(getOldData().owner) && isOnlyUpdatedFields(['name'])
+			allow update: if isSignedInWith(getOldData().owner) && onlyUpdatedFields(['name']) && isNotEmpty(getNewData().name)
 			allow delete: if isSignedInWith(getOldData().owner)
 			
 			match /comments/{commentId} {
@@ -39,7 +40,7 @@ service cloud.firestore {
 			return resource.data
 		}
 		
-		function isOnlyUpdatedFields(fields) {
+		function onlyUpdatedFields(fields) {
 			return getNewData().diff(getOldData()).affectedKeys().hasOnly(fields)
 		}
 		
