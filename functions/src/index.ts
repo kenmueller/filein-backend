@@ -13,24 +13,64 @@ const storage = admin.storage().bucket()
 
 export const userUpdated = functions.firestore
 	.document('users/{uid}')
-	.onUpdate(({ before, after }, { params: { uid } }) => {
+	.onUpdate(({ before, after }) => {
 		const name = after.get('name')
 		
 		return before.get('name') === name
 			? Promise.resolve()
-			: auth.updateUser(uid, { displayName: name })
+			: auth.updateUser(after.id, { displayName: name })
+	})
+
+export const fileCreated = functions.firestore
+	.document('files/{fileId}')
+	.onCreate(snapshot => {
+		const uid = snapshot.get('owner')
+		
+		return uid
+			? firestore.doc(`users/${uid}`).update({
+				files: FieldValue.increment(1)
+			})
+			: Promise.resolve()
 	})
 
 export const fileDeleted = functions.firestore
 	.document('files/{fileId}')
-	.onDelete((_snapshot, { params: { fileId } }) =>
-		storage.file(fileId).delete()
-	)
+	.onDelete(snapshot => {
+		const uid = snapshot.get('owner')
+		const promises: Promise<any>[] = [
+			storage.file(snapshot.id).delete()
+		]
+		
+		if (uid)
+			promises.push(firestore.doc(`users/${uid}`).update({
+				files: FieldValue.increment(-1)
+			}))
+		
+		return Promise.all(promises)
+	})
 
 export const commentCreated = functions.firestore
 	.document('files/{fileId}/comments/{commentId}')
-	.onCreate((_snapshot, { params: { fileId } }) =>
-		firestore.doc(`files/${fileId}`).update({
-			comments: FieldValue.increment(1)
-		})
+	.onCreate((snapshot, { params: { fileId } }) =>
+		Promise.all([
+			firestore.doc(`users/${snapshot.get('from')}`).update({
+				comments: FieldValue.increment(1)
+			}),
+			firestore.doc(`files/${fileId}`).update({
+				comments: FieldValue.increment(1)
+			})
+		])
+	)
+
+export const commentDeleted = functions.firestore
+	.document('files/{fileId}/comments/{commentId}')
+	.onDelete((snapshot, { params: { fileId } }) =>
+		Promise.all([
+			firestore.doc(`users/${snapshot.get('from')}`).update({
+				comments: FieldValue.increment(-1)
+			}),
+			firestore.doc(`files/${fileId}`).update({
+				comments: FieldValue.increment(-1)
+			})
+		])
 	)
