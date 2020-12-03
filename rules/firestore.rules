@@ -20,11 +20,14 @@ service cloud.firestore {
 			allow read
 			allow create: if
 				isOptionallySignedInWith(getNewData().owner) &&
-				isZero(getNewData().comments)
+				isZero(getNewData().comments) &&
+				getNewData().public is bool &&
+				(getNewData().owner != null || getNewData().public) // Anonymous uploads must be public
 			allow update: if
-				isSignedInWith(getOldData().owner) &&
-				onlyUpdatedFields(['name']) &&
-				isNotEmpty(getNewData().name)
+				isSignedInWith(getOldData().owner) && (
+					(onlyUpdatedFields(['name']) && isNotEmpty(getNewData().name)) ||
+					(onlyUpdatedFields(['public']) && getNewData().public is bool)
+				)
 			allow delete: if
 				isSignedInWith(getOldData().owner)
 			
@@ -61,11 +64,11 @@ service cloud.firestore {
 		}
 		
 		function isZero(num) {
-			return num == 0
+			return num is int && num == 0
 		}
 		
 		function isNotEmpty(str) {
-			return str != null && str.size() > 0
+			return str is string && str.size() > 0
 		}
 	}
 }
