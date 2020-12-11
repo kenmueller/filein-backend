@@ -21,8 +21,7 @@ service cloud.firestore {
 			allow create: if
 				isOptionallySignedInWith(getNewData().owner) &&
 				isZero(getNewData().comments) &&
-				getNewData().public is bool &&
-				(getNewData().owner != null || getNewData().public) // Anonymous uploads must be public
+				getNewData().public is bool
 			allow update: if
 				isSignedInWith(getOldData().owner) && (
 					(onlyUpdatedFields(['name']) && isNotEmpty(getNewData().name)) ||
