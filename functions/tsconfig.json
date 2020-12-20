@@ -8,7 +8,8 @@
 		"strict": true,
 		"target": "es2017",
 		"skipLibCheck": true,
-		"incremental": true
+		"incremental": true,
+		"esModuleInterop": true
 	},
 	"compileOnSave": true,
 	"include": ["src"]
