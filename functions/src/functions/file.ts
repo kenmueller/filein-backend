@@ -33,9 +33,7 @@ export const fileUpdated = functions.firestore
 				return
 			
 			await storage.file(after.id).setMetadata({
-				metadata: {
-					contentDisposition: `inline; filename=${JSON.stringify(name)}`
-				}
+				contentDisposition: `inline; filename=${JSON.stringify(name)}`
 			})
 		} catch (error) {
 			console.error(error)
