@@ -1,4 +1,19 @@
 {
-	"indexes": [],
+	"indexes": [
+		{
+			"collectionGroup": "files",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "public",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "uploaded",
+					"order": "DESCENDING"
+				}
+			]
+		}
+	],
 	"fieldOverrides": []
 }
