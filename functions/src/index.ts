@@ -1,6 +1,6 @@
-import admin from 'firebase-admin'
+import { initializeApp } from 'firebase-admin'
 
-admin.initializeApp({
+initializeApp({
 	storageBucket: 'u.filein.io'
 })
 
